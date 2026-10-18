@@ -1,7 +1,7 @@
 {
   "title": "Onco du matin",
   "author": "Onco du matin",
-  "description": "Chaque matin de semaine, une fiche de cours d'oncologie médicale et la veille de l'actualité, en moins de vingt minutes.",
+  "description": "Chaque matin de semaine, une fiche de cours d'oncologie médicale : stratégie, protocoles de chimiothérapie, chiffres clés et questions de RCP, en moins de vingt minutes. Le vendredi, un quiz sur la semaine.",
   "language": "fr",
   "keep": 30,
   "model": "gpt-4o-mini-tts",

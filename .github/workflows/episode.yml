@@ -3,7 +3,7 @@ name: Episode
 on:
   push:
     branches: [main]
-    paths: ["episodes/*.md", "scripts/**", "podcast.json", "cover.png"]
+    paths: ["episodes/*.md", "notes/*.md", "scripts/**", "podcast.json", "cover.png"]
   workflow_dispatch:
     inputs:
       mode:
@@ -35,8 +35,10 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: ffmpeg
-        run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+      - name: Outils
+        run: |
+          command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+          pip install -q markdown
 
       - name: Épisodes à générer
         id: files

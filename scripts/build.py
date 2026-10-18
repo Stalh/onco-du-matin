@@ -22,6 +22,7 @@ DB = ROOT / "episodes.json"
 RATE = 24000
 GAPS = {"pause": 3.5, "section": 1.6, "chunk": 0.35}
 MAX_CHARS = 3000
+COVER_V = __import__("hashlib").md5((ROOT / "cover.png").read_bytes()).hexdigest()[:8]
 
 
 # lit le front matter et le corps d'un épisode
@@ -156,18 +157,70 @@ def stage_audio(eps, out):
         ep["public"] = f"{SITE}/audio/{name}"
 
 
+CSS = """
+body{font-family:-apple-system,system-ui,sans-serif;max-width:720px;margin:0 auto;padding:24px 16px;background:#f6f4ef;color:#1d2a26;line-height:1.55}
+a{color:#1f6b52}header{display:flex;gap:16px;align-items:center}header img{width:96px;border-radius:12px}
+code{background:#e7e2d6;padding:2px 6px;border-radius:4px;word-break:break-all}
+ul.eps{list-style:none;padding:0}ul.eps>li{border-top:1px solid #d8d2c4;padding:16px 0}ul.eps h2{font-size:1.05em;margin:0 0 6px}
+.muted{color:#4a5752}audio{width:100%;margin-top:8px}
+h1{font-size:1.5em;line-height:1.25}h2{font-size:1.2em;margin-top:1.6em;border-bottom:2px solid #7fc8a9;padding-bottom:4px}h3{font-size:1.05em;margin-top:1.3em}
+.table{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.92em;margin:12px 0}th,td{border:1px solid #d8d2c4;padding:6px 8px;text-align:left;vertical-align:top}th{background:#e7e2d6}
+.warn{background:#fbecc8;border-left:4px solid #e9b44c;padding:10px 12px;border-radius:4px;margin:16px 0}
+@media (prefers-color-scheme:dark){body{background:#131a18;color:#e8ece9}a{color:#7fc8a9}.muted{color:#a9b5b0}ul.eps>li,th,td{border-color:#2c3633}th,code{background:#25302d}.warn{background:#3a3320}}
+"""
+
+
+def page(title, body):
+    e = html.escape
+    return f"""<!doctype html>
+<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>{e(title)}</title><style>{CSS}</style></head><body>
+{body}
+</body></html>
+"""
+
+
+# rend chaque fiche écrite en page web
+def render_fiches(eps, out):
+    import markdown
+    (out / "fiches").mkdir(parents=True, exist_ok=True)
+    for ep in eps:
+        src = ROOT / "notes" / f"{ep['date']}.md"
+        if not src.exists():
+            continue
+        body = markdown.markdown(src.read_text(encoding="utf-8"), extensions=["tables", "sane_lists"])
+        body = re.sub(r"(<table>.*?</table>)", r'<div class="table">\1</div>', body, flags=re.S)
+        warn = '<p class="warn">Doses indicatives, à vérifier dans le thésaurus et les protocoles validés du centre avant toute prescription.</p>'
+        nav = f'<p class="muted"><a href="../">{html.escape(CONF["title"])}</a> · {html.escape(ep["date"])}</p>'
+        (out / "fiches" / f"{ep['date']}.html").write_text(page(ep["title"], nav + warn + body), encoding="utf-8")
+        ep["fiche"] = f"{SITE}/fiches/{ep['date']}.html"
+
+
 # génère le flux RSS et la page d'accueil
 def site(eps):
     out = ROOT / "site"
     out.mkdir(exist_ok=True)
     (out / "cover.png").write_bytes((ROOT / "cover.png").read_bytes())
     stage_audio(eps, out)
+    render_fiches(eps, out)
     e = html.escape
+
+    def notes(ep):
+        h = f"<p>{e(ep['summary'])}</p>"
+        if ep.get("fiche"):
+            h += f'<p><a href="{e(ep["fiche"])}">Lire la fiche complète : protocoles, doses et sources</a></p>'
+        return h
+
+    def desc(ep):
+        return ep["summary"] + (f" Fiche complète : {ep['fiche']}" if ep.get("fiche") else "")
+
     items = "".join(f"""
     <item>
       <title>{e(ep['title'])}</title>
-      <description>{e(ep['summary'])}</description>
-      <itunes:summary>{e(ep['summary'])}</itunes:summary>
+      <description>{e(desc(ep))}</description>
+      <content:encoded><![CDATA[{notes(ep)}]]></content:encoded>
+      <itunes:summary>{e(desc(ep))}</itunes:summary>
+      <link>{e(ep.get('fiche') or SITE + '/')}</link>
       <pubDate>{ep['pub']}</pubDate>
       <guid isPermaLink="false">onco-{ep['date']}-{ep.get('rev', 1)}</guid>
       <enclosure url="{e(ep['public'])}" length="{ep['bytes']}" type="audio/mpeg"/>
@@ -177,7 +230,7 @@ def site(eps):
     </item>""" for ep in eps)
     last = eps[0]["pub"] if eps else format_datetime(datetime.now(timezone.utc))
     (out / "feed.xml").write_text(f"""<?xml version="1.0" encoding="UTF-8"?>
-<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:atom="http://www.w3.org/2005/Atom">
+<rss version="2.0" xmlns:itunes="http://www.itunes.com/dtds/podcast-1.0.dtd" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>{e(CONF['title'])}</title>
     <link>{SITE}/</link>
@@ -186,8 +239,8 @@ def site(eps):
     <description>{e(CONF['description'])}</description>
     <itunes:summary>{e(CONF['description'])}</itunes:summary>
     <itunes:author>{e(CONF['author'])}</itunes:author>
-    <itunes:image href="{SITE}/cover.png"/>
-    <image><url>{SITE}/cover.png</url><title>{e(CONF['title'])}</title><link>{SITE}/</link></image>
+    <itunes:image href="{SITE}/cover.png?v={COVER_V}"/>
+    <image><url>{SITE}/cover.png?v={COVER_V}</url><title>{e(CONF['title'])}</title><link>{SITE}/</link></image>
     <itunes:category text="Health &amp; Fitness"><itunes:category text="Medicine"/></itunes:category>
     <itunes:explicit>false</itunes:explicit>
     <itunes:type>episodic</itunes:type>
@@ -197,26 +250,14 @@ def site(eps):
 </rss>
 """, encoding="utf-8")
     rows = "".join(
-        f"<li><h2>{e(ep['title'])}</h2><p>{e(ep['summary'])}</p>"
-        f"<audio controls preload=\"none\" src=\"{e(ep['public'])}\"></audio></li>" for ep in eps
+        f"<li><h2>{e(ep['title'])}</h2><p class=\"muted\">{e(ep['summary'])}</p>"
+        + (f"<p><a href=\"{e(ep['fiche'])}\">Fiche complète</a></p>" if ep.get("fiche") else "")
+        + f"<audio controls preload=\"none\" src=\"{e(ep['public'])}\"></audio></li>" for ep in eps
     )
-    (out / "index.html").write_text(f"""<!doctype html>
-<html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>{e(CONF['title'])}</title>
-<link rel="alternate" type="application/rss+xml" href="feed.xml">
-<style>
-body{{font-family:-apple-system,system-ui,sans-serif;max-width:640px;margin:0 auto;padding:24px 16px;background:#f6f4ef;color:#1d2a26}}
-header{{display:flex;gap:16px;align-items:center}}img{{width:96px;border-radius:12px}}
-code{{background:#e7e2d6;padding:2px 6px;border-radius:4px;word-break:break-all}}
-ul{{list-style:none;padding:0}}li{{border-top:1px solid #d8d2c4;padding:16px 0}}h2{{font-size:1.05em;margin:0 0 6px}}
-p{{margin:0 0 10px;color:#4a5752}}audio{{width:100%}}
-@media (prefers-color-scheme:dark){{body{{background:#131a18;color:#e8ece9}}p{{color:#a9b5b0}}li{{border-color:#2c3633}}code{{background:#25302d}}}}
-</style></head><body>
-<header><img src="cover.png" alt=""><div><h1>{e(CONF['title'])}</h1><p>{e(CONF['description'])}</p></div></header>
-<p>Flux à ajouter dans l'app Podcasts : <code>{SITE}/feed.xml</code></p>
-<ul>{rows}</ul>
-</body></html>
-""", encoding="utf-8")
+    head = (f'<header><img src="cover.png" alt=""><div><h1>{e(CONF["title"])}</h1>'
+            f'<p class="muted">{e(CONF["description"])}</p></div></header>'
+            f'<p>Flux à ajouter dans l\'app Podcasts : <code>{SITE}/feed.xml</code></p>')
+    (out / "index.html").write_text(page(CONF["title"], head + f'<ul class="eps">{rows}</ul>'), encoding="utf-8")
 
 
 # supprime les épisodes au-delà de la limite

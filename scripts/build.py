@@ -142,11 +142,26 @@ def fmt_duration(s):
     return f"{s // 3600:d}:{s % 3600 // 60:02d}:{s % 60:02d}"
 
 
+# copie les MP3 dans le site pour qu'ils soient servis en audio/mpeg
+def stage_audio(eps, out):
+    audio = out / "audio"
+    audio.mkdir(parents=True, exist_ok=True)
+    for ep in eps:
+        name = ep["url"].rsplit("/", 1)[1]
+        local = ROOT / "out" / name
+        if local.exists():
+            (audio / name).write_bytes(local.read_bytes())
+        else:
+            gh("release", "download", ep["tag"], "--pattern", name, "--dir", str(audio), "--clobber")
+        ep["public"] = f"{SITE}/audio/{name}"
+
+
 # génère le flux RSS et la page d'accueil
 def site(eps):
     out = ROOT / "site"
     out.mkdir(exist_ok=True)
     (out / "cover.png").write_bytes((ROOT / "cover.png").read_bytes())
+    stage_audio(eps, out)
     e = html.escape
     items = "".join(f"""
     <item>
@@ -154,8 +169,8 @@ def site(eps):
       <description>{e(ep['summary'])}</description>
       <itunes:summary>{e(ep['summary'])}</itunes:summary>
       <pubDate>{ep['pub']}</pubDate>
-      <guid isPermaLink="false">{e(ep['tag'])}-{ep.get('rev', 1)}</guid>
-      <enclosure url="{e(ep['url'])}" length="{ep['bytes']}" type="audio/mpeg"/>
+      <guid isPermaLink="false">onco-{ep['date']}-{ep.get('rev', 1)}</guid>
+      <enclosure url="{e(ep['public'])}" length="{ep['bytes']}" type="audio/mpeg"/>
       <itunes:duration>{fmt_duration(ep['duration'])}</itunes:duration>
       <itunes:episodeType>full</itunes:episodeType>
       <itunes:explicit>false</itunes:explicit>
@@ -183,7 +198,7 @@ def site(eps):
 """, encoding="utf-8")
     rows = "".join(
         f"<li><h2>{e(ep['title'])}</h2><p>{e(ep['summary'])}</p>"
-        f"<audio controls preload=\"none\" src=\"{e(ep['url'])}\"></audio></li>" for ep in eps
+        f"<audio controls preload=\"none\" src=\"{e(ep['public'])}\"></audio></li>" for ep in eps
     )
     (out / "index.html").write_text(f"""<!doctype html>
 <html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">

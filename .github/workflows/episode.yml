@@ -3,7 +3,7 @@ name: Episode
 on:
   push:
     branches: [main]
-    paths: ["episodes/*.md"]
+    paths: ["episodes/*.md", "scripts/**", "podcast.json", "cover.png"]
   workflow_dispatch:
     inputs:
       mode:

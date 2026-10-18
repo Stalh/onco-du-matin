@@ -1,0 +1,10 @@
+{
+  "title": "Onco du matin",
+  "author": "Onco du matin",
+  "description": "Chaque matin de semaine, une fiche de cours d'oncologie médicale et la veille de l'actualité, en moins de vingt minutes.",
+  "language": "fr",
+  "keep": 30,
+  "model": "gpt-4o-mini-tts",
+  "voice": "coral",
+  "instructions": "Voix de podcast médical francophone, posée et claire. Débit naturel, légèrement soutenu, sans précipitation. Articulation nette des chiffres, des pourcentages et des noms de molécules. Ton sérieux mais chaleureux, comme un enseignant qui explique un cours à des internes. Les noms d'essais cliniques et de molécules en anglais se prononcent à l'anglaise, tout le reste en français standard. Marque une légère pause à chaque changement de paragraphe."
+}

@@ -1,0 +1,80 @@
+name: Episode
+
+on:
+  push:
+    branches: [main]
+    paths: ["episodes/*.md"]
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: "episode = (re)générer un fichier, feed = flux seul, voix = échantillons de voix"
+        type: choice
+        options: [episode, feed, voix]
+        default: episode
+      file:
+        description: "Fichier à (re)générer, ex. episodes/2026-10-16.md"
+        required: false
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: episode
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: ffmpeg
+        run: command -v ffmpeg || (sudo apt-get update -qq && sudo apt-get install -y -qq ffmpeg)
+
+      - name: Épisodes à générer
+        id: files
+        env:
+          MODE: ${{ inputs.mode }}
+          FILE: ${{ inputs.file }}
+          BEFORE: ${{ github.event.before }}
+        run: |
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            case "$MODE" in
+              voix) echo "args=--samples" >> "$GITHUB_OUTPUT" ;;
+              feed) echo "args=" >> "$GITHUB_OUTPUT" ;;
+              *) echo "args=$FILE" >> "$GITHUB_OUTPUT" ;;
+            esac
+          else
+            if git cat-file -e "$BEFORE" 2>/dev/null; then base="$BEFORE"; else base="HEAD~1"; fi
+            files=$(git diff --name-only --diff-filter=AM "$base" HEAD -- 'episodes/*.md' | sort | tr '\n' ' ')
+            echo "args=$files" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Synthèse vocale et flux
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
+        run: python3 scripts/build.py ${{ steps.files.outputs.args }}
+
+      - name: Enregistrer la liste des épisodes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git add episodes.json
+          git diff --cached --quiet && exit 0
+          git commit -m "Épisodes : mise à jour de la liste"
+          for i in 1 2 3; do git pull --rebase -q && git push -q && break; sleep 5; done
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deploy
+        uses: actions/deploy-pages@v4

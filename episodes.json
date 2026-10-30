@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-10-30",
+    "title": "Mélanome et carcinomes cutanés",
+    "summary": "Fiche 33 sur 36. Mélanome du stade II au métastatique, guidé par le stade et le statut B R A F, puis carcinomes épidermoïde, basocellulaire et de Merkel. Protocoles anti P D 1 adjuvant, ipilimumab nivolumab, dabrafenib trametinib, nivolumab relatlimab, encorafenib binimetinib, cémiplimab et avélumab.",
+    "tag": "ep-2026-10-30",
+    "url": "https://github.com/Stalh/onco-du-matin/releases/download/ep-2026-10-30/onco-du-matin-2026-10-30.mp3",
+    "bytes": 8240685,
+    "duration": 1030,
+    "pub": "Fri, 30 Oct 2026 04:57:37 +0000",
+    "rev": 1
+  },
+  {
     "date": "2026-10-29",
     "title": "Cancers des VADS et carcinome du cavum",
     "summary": "Fiche 32 sur 36. Carcinomes épidermoïdes des VADS et du cavum, du localisé au métastatique, avec le C P S comme nouveau pivot. Protocoles cisplatine concomitant, cétuximab radiothérapie, pembrolizumab périopératoire, pembrolizumab platine 5 F U, TPF d'induction et gemcitabine cisplatine avec ou sans toripalimab.",

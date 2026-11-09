@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-11-04",
+    "title": "Primitif inconnu, oncogénétique et médecine de précision",
+    "summary": "Fiche 36 sur 36. Cancer de primitif inconnu, des sous-groupes favorables au groupe défavorable, puis recherche de Lynch et de BRCA et traitements agnostiques. Protocoles carboplatine paclitaxel, cisplatine gemcitabine, pembrolizumab dans les tumeurs MSI et larotrectinib dans les fusions NTRK.",
+    "tag": "ep-2026-11-04",
+    "url": "https://github.com/Stalh/onco-du-matin/releases/download/ep-2026-11-04/onco-du-matin-2026-11-04.mp3",
+    "bytes": 7838252,
+    "duration": 980,
+    "pub": "Mon, 09 Nov 2026 21:02:34 +0000",
+    "rev": 1
+  },
+  {
     "date": "2026-11-03",
     "title": "Tumeurs primitives du système nerveux central",
     "summary": "Fiche 35 sur 36. Gliomes de l'adulte selon le diagnostic intégré IDH, 1p/19q et MGMT, du glioblastome au gliome IDH-muté de grade 2. Protocoles de Stupp, radiothérapie courte avec témozolomide chez le sujet âgé, PCV, vorasidenib et options de récidive par lomustine.",

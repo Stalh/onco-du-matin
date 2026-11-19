@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-11-19",
+    "title": "Poumon : CBNPC localisé et stade III",
+    "summary": "Fiche 6 sur 36. Stratégie du cancer bronchique non à petites cellules opérable et du stade III non résécable, avec la place de l'immunothérapie et des thérapies ciblées. Protocoles abordés : nivolumab néoadjuvant, pembrolizumab périopératoire, cisplatine vinorelbine adjuvant, chimioradiothérapie concomitante et durvalumab de consolidation.",
+    "tag": "ep-2026-11-19",
+    "url": "https://github.com/Stalh/onco-du-matin/releases/download/ep-2026-11-19/onco-du-matin-2026-11-19.mp3",
+    "bytes": 7784300,
+    "duration": 973,
+    "pub": "Thu, 19 Nov 2026 05:02:53 +0000",
+    "rev": 1
+  },
+  {
     "date": "2026-11-16",
     "title": "Sein HER2 positif métastatique et HER2 faible (2/2)",
     "summary": "Fiche 5 sur 36. Séquence des lignes dans le cancer du sein HER2+ métastatique et place du trastuzumab déruxtécan dans le HER2-low et ultralow. Protocoles abordés : THP, trastuzumab déruxtécan avec ou sans pertuzumab, et tucatinib capécitabine trastuzumab.",

@@ -1,5 +1,16 @@
 [
   {
+    "date": "2026-11-23",
+    "title": "Poumon : CBNPC métastatique sans addiction oncogénique",
+    "summary": "Fiche 7 sur 36. Première ligne du CBNPC métastatique selon le PD-L1 et l'histologie, sujet âgé, PS 2 et deuxième ligne. Protocoles abordés : platine pemetrexed pembrolizumab, carboplatine paclitaxel pembrolizumab, pembrolizumab seul, carboplatine paclitaxel hebdomadaire et docétaxel.",
+    "tag": "ep-2026-11-23",
+    "url": "https://github.com/Stalh/onco-du-matin/releases/download/ep-2026-11-23/onco-du-matin-2026-11-23.mp3",
+    "bytes": 7465196,
+    "duration": 933,
+    "pub": "Mon, 23 Nov 2026 04:56:24 +0000",
+    "rev": 1
+  },
+  {
     "date": "2026-11-19",
     "title": "Poumon : CBNPC localisé et stade III",
     "summary": "Fiche 6 sur 36. Stratégie du cancer bronchique non à petites cellules opérable et du stade III non résécable, avec la place de l'immunothérapie et des thérapies ciblées. Protocoles abordés : nivolumab néoadjuvant, pembrolizumab périopératoire, cisplatine vinorelbine adjuvant, chimioradiothérapie concomitante et durvalumab de consolidation.",
